@@ -1,4 +1,3 @@
-#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -7,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "main.h"
+#include "scoundrel.h"
 
 int main(int argc, char* argv[]) {
 	printf("Hello world\n");

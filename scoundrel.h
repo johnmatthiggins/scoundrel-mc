@@ -1,5 +1,5 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef SCOUNDREL_H
+#define SCOUNDREL_H
 
 #include <cstdint>
 #include <memory>
