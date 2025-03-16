@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iostream>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -11,7 +10,7 @@
 #include "scoundrel.h"
 
 ScoundrelGame::ScoundrelGame(uint32_t seed) {
-	this->_mt19937 = std::make_unique<std::mt19937>(std::mt19937());
+	this->_mt19937 = std::make_unique<std::mt19937>(std::mt19937(seed));
 	this->_health_points = STARTING_HEALTH;
 
 	this->_deck = std::make_unique<CardStack>(
@@ -109,6 +108,15 @@ CardStack ScoundrelGame::_starting_deck() const  {
 	return _cards;
 }
 
+void ScoundrelGame::_next_room() {
+	constexpr size_t ROOM_CARD_COUNT = 4;
+	const size_t limit = std::min(ROOM_CARD_COUNT - 1, this->_deck->size());
+	for (size_t i = 0; i < limit; ++i) {
+		this->_room->push_back(this->_deck->back());
+		this->_deck->pop_back();
+	}
+}
+
 CardStack* ScoundrelGame::get_room() const {
 	return this->_room.get();
 }
@@ -133,9 +141,6 @@ bool ScoundrelGame::has_died() const {
 }
 
 bool ScoundrelGame::has_exited_dungeon() const {
-	// count number of monsters remaining in the deck
-	// and in the current room...
-	// or just check the discard pile?
 	return std::count_if(
 		this->_discard->begin(),
 		this->_discard->end(),
@@ -204,21 +209,8 @@ void ScoundrelGame::fight_monster_barehanded_at(uint32_t room_index) {
 	// check if all monsters have been killed
 	// if they have all been killed then set the win state or whatever...
 
-	// TODO: put next state function in here...
-	// if only one remaining card in room then deal the next 3 card slice of the deck
-	// (I say slice because there may not be 3 cards left in the deck there could actually be less)
 	if (this->get_room()->size() == 1) {
-		if (this->_deck->size() > 3) {
-			this->_room->push_back(this->_deck->back());
-			this->_deck->pop_back();
-			this->_room->push_back(this->_deck->back());
-			this->_deck->pop_back();
-			this->_room->push_back(this->_deck->back());
-			this->_deck->pop_back();
-		}
-		// check if there are any cards left in the deck
-		// if there are cards left in the deck then load the next 3 (or less)
-		// into the current room.
+		this->_next_room();
 	}
 }
 
@@ -235,7 +227,9 @@ void ScoundrelGame::fight_with_weapon_at(uint32_t room_index) {
 	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
 	this->_discard->push_back(monster);
 
-	// TODO: put next state function in here...
+	if (this->get_room()->size() == 1) {
+		this->_next_room();
+	}
 }
 
 void ScoundrelGame::equip_weapon_at(uint32_t room_index) {
@@ -251,7 +245,9 @@ void ScoundrelGame::equip_weapon_at(uint32_t room_index) {
 	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
 	this->_discard->push_back(weapon);
 
-	// TODO: put next state function in here...
+	if (this->get_room()->size() == 1) {
+		this->_next_room();
+	}
 }
 
 void ScoundrelGame::drink_potion_at(uint32_t room_index) {
@@ -265,7 +261,9 @@ void ScoundrelGame::drink_potion_at(uint32_t room_index) {
 	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
 	this->_discard->push_back(potion);
 
-	// TODO: put next state function in here...
+	if (this->get_room()->size() == 1) {
+		this->_next_room();
+	}
 }
 
 void ScoundrelGame::run_away() {
@@ -273,5 +271,17 @@ void ScoundrelGame::run_away() {
 		throw std::invalid_argument("You can't run away you damn coward!");
 	}
 
-	// IDK RUN AWAY IG FR FR FR FR
+	// move cards back into deck, shuffle, and deal 4
+	for (size_t i = 0; i < 4; ++i) {
+		const Card card = this->_room->back();
+		this->_room->pop_back();
+		this->_deck->push_back(card);
+	}
+	this->_shuffle();
+
+	for (size_t i = 0; i < 4; ++i) {
+		const Card card = this->_deck->back();
+		this->_deck->pop_back();
+		this->_room->push_back(card);
+	}
 }

@@ -53,6 +53,8 @@ private:
 	uint32_t _random_int(uint32_t limit);
 	void _shuffle();
 	CardStack _starting_deck() const;
+
+	void _next_room();
 public:
 	ScoundrelGame(uint32_t seed);
 	~ScoundrelGame();
