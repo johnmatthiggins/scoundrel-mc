@@ -84,7 +84,7 @@ CardStack ScoundrelGame::_starting_deck() const  {
 			.rank = i,
 		};
 		const Card next_spades = {
-			.suit = CardSuit::CLUBS,
+			.suit = CardSuit::SPADES,
 			.rank = i,
 		};
 		_cards.push_back(next_clubs);

@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 
 #include "scoundrel.h"
 
@@ -18,7 +19,8 @@ char _suit_char(CardSuit suit) {
 }
 
 int main(int argc, char* argv[]) {
-	ScoundrelGame game(1);
+	const int seed = rand();
+	ScoundrelGame game(seed);
 	for (int i = 0; i < 40; ++i) {
 		const Card card = game.get_room()->at(i);
 		printf("%d %c ", card.rank,_suit_char((CardSuit)card.suit));
