@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -8,12 +9,8 @@
 
 #include "scoundrel.h"
 
-int main(int argc, char* argv[]) {
-	printf("Hello world\n");
-	return 0;
-}
-
 ScoundrelGame::ScoundrelGame(uint32_t seed) {
+	this->_mt19937 = std::make_unique<std::mt19937>(std::mt19937());
 	this->_health_points = STARTING_HEALTH;
 
 	this->_deck = std::make_unique<CardStack>(
@@ -63,12 +60,11 @@ void ScoundrelGame::_shuffle() {
 	this->_deck->clear();
 
 	// just keep popping them off until it's empty...
-	while (tmp_deck.size() > 0) {
-		// TODO: make sure this actually gives us a UNIFORM distribution
+	while (_deck->size() < STARTING_DECK_SIZE) {
 		// This probably has a bias because of the modulo operator making some
 		// numbers more common than others because the possible values in an uint32_t
 		// is not going to be evenly divided by the number of remaining cards.
-		const size_t next_index = this->_random_int(tmp_deck.size());
+		const size_t next_index = this->_random_int(tmp_deck.size() - 1);
 
 		// pop it off the stack
 		const Card next_card = tmp_deck.at(next_index);
@@ -78,7 +74,7 @@ void ScoundrelGame::_shuffle() {
 	}
 }
 
-CardStack ScoundrelGame::_starting_deck() {
+CardStack ScoundrelGame::_starting_deck() const  {
 	std::vector<Card> _cards(STARTING_DECK_SIZE);
 
 	// load monsters...
@@ -195,9 +191,16 @@ void ScoundrelGame::fight_monster_barehanded_at(uint32_t room_index) {
 	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
 	this->_discard->push_back(monster);
 
+	// increment the number of killed monsters...
+
 	// TODO: put next state function in here...
 	// if only one remaining card in room then deal the next 3 card slice of the deck
 	// (I say slice because there may not be 3 cards left in the deck there could actually be less)
+	if (this->get_room()->size() == 1) {
+		// check if there are any cards left in the deck
+		// if there are cards left in the deck then load the next 3 (or less)
+		// into the current room.
+	}
 }
 
 void ScoundrelGame::fight_with_weapon_at(uint32_t room_index) {
