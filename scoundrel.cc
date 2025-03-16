@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <cstdint>
 #include <cstdio>
@@ -135,7 +136,13 @@ bool ScoundrelGame::has_exited_dungeon() const {
 	// count number of monsters remaining in the deck
 	// and in the current room...
 	// or just check the discard pile?
-	return false;
+	return std::count_if(
+		this->_discard->begin(),
+		this->_discard->end(),
+		[](Card card) {
+			return card.suit == CardSuit::SPADES || card.suit == CardSuit::CLUBS;
+		}
+	) == 26;
 }
 
 bool ScoundrelGame::has_weapon() const {
@@ -147,7 +154,9 @@ bool ScoundrelGame::can_drink_potion() const {
 }
 
 bool ScoundrelGame::can_run_away() const {
-	return this->_can_run;
+	// all cards need to be present in room in order for a
+	// player to run.
+	return this->_can_run && this->_room->size() == 4;
 }
 
 // don't do any bounds checking...
@@ -190,13 +199,23 @@ void ScoundrelGame::fight_monster_barehanded_at(uint32_t room_index) {
 	this->_health_points -= monster.rank;
 	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
 	this->_discard->push_back(monster);
-
+	
 	// increment the number of killed monsters...
+	// check if all monsters have been killed
+	// if they have all been killed then set the win state or whatever...
 
 	// TODO: put next state function in here...
 	// if only one remaining card in room then deal the next 3 card slice of the deck
 	// (I say slice because there may not be 3 cards left in the deck there could actually be less)
 	if (this->get_room()->size() == 1) {
+		if (this->_deck->size() > 3) {
+			this->_room->push_back(this->_deck->back());
+			this->_deck->pop_back();
+			this->_room->push_back(this->_deck->back());
+			this->_deck->pop_back();
+			this->_room->push_back(this->_deck->back());
+			this->_deck->pop_back();
+		}
 		// check if there are any cards left in the deck
 		// if there are cards left in the deck then load the next 3 (or less)
 		// into the current room.
