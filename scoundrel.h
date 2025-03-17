@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <random>
 #include <vector>
 
@@ -35,7 +36,7 @@ private:
 	std::unique_ptr<std::vector<Card>> _discard;
 
 	// The current weapon that is equipped...
-	std::unique_ptr<Card> _equipped_weapon;
+	std::optional<Card> _equipped_weapon;
 
 	// The list of monsters killed with the current weapon...
 	std::unique_ptr<std::vector<Card>> _killed_monsters;
@@ -59,11 +60,12 @@ public:
 	ScoundrelGame(uint32_t seed);
 	~ScoundrelGame();
 
+	int32_t get_health() const;
 	std::vector<Card>* get_room() const;
 	std::vector<Card>* get_deck() const;
 	std::vector<Card>* get_discard() const;
 	std::vector<Card>* get_killed_monsters() const;
-	Card* get_equipped_weapon() const;
+	const std::optional<Card>& get_equipped_weapon() const;
 
 	bool has_died() const;
 	bool has_exited_dungeon() const;

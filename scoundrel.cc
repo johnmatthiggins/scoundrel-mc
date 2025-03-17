@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
+#include <optional>
 #include <random>
 #include <stdexcept>
 #include <vector>
@@ -16,12 +17,12 @@ ScoundrelGame::ScoundrelGame(uint32_t seed) {
 	this->_deck = std::make_unique<CardStack>(
 		this->_starting_deck()
 	);
-	this->_shuffle();
+	_shuffle();
 
 	this->_discard = std::make_unique<CardStack>(
 		CardStack()
 	);
-	this->_equipped_weapon = nullptr;
+	this->_equipped_weapon = std::nullopt;
 	this->_killed_monsters = std::make_unique<CardStack>(
 		CardStack()
 	);
@@ -98,6 +99,11 @@ void ScoundrelGame::_next_room() {
 		this->_room->push_back(this->_deck->back());
 		this->_deck->pop_back();
 	}
+	this->_can_run = true;
+}
+
+int32_t ScoundrelGame::get_health() const {
+	return this->_health_points;
 }
 
 CardStack* ScoundrelGame::get_room() const {
@@ -116,11 +122,8 @@ CardStack* ScoundrelGame::get_killed_monsters() const {
 	return this->_killed_monsters.get();
 }
 
-Card* ScoundrelGame::get_equipped_weapon() const {
-	if (!this->has_weapon()) {
-		return nullptr;
-	}
-	return this->_equipped_weapon.get();
+const std::optional<Card>& ScoundrelGame::get_equipped_weapon() const {
+	return this->_equipped_weapon;
 }
 
 bool ScoundrelGame::has_died() const {
@@ -138,7 +141,7 @@ bool ScoundrelGame::has_exited_dungeon() const {
 }
 
 bool ScoundrelGame::has_weapon() const {
-	return this->_equipped_weapon != nullptr;
+	return this->_equipped_weapon.has_value();
 }
 
 bool ScoundrelGame::can_drink_potion() const {
@@ -189,7 +192,7 @@ void ScoundrelGame::fight_monster_barehanded_at(uint32_t room_index) {
 
 	// decremented health and added monster to discard pile...
 	this->_health_points -= monster.rank;
-	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
+	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(monster);
 	
 	// increment the number of killed monsters...
@@ -209,9 +212,9 @@ void ScoundrelGame::fight_with_weapon_at(uint32_t room_index) {
 	const Card monster = this->_room->at(room_index);
 
 	// decrement health and add monster to discard pile...
-	this->_health_points -= monster.rank;
+	this->_health_points -= std::max(monster.rank - this->_equipped_weapon.value().rank, 0);
 	this->_killed_monsters->push_back(monster);
-	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
+	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(monster);
 
 	if (this->get_room()->size() == 1) {
@@ -226,10 +229,10 @@ void ScoundrelGame::equip_weapon_at(uint32_t room_index) {
 	}
 	// reset killed monsters because we have a new weapon...
 	this->_killed_monsters->clear();
-	*this->_equipped_weapon = weapon;
+	this->_equipped_weapon = std::optional(weapon);
 
 	// delete from room and move it to the discard pile...
-	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
+	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(weapon);
 
 	if (this->get_room()->size() == 1) {
@@ -245,7 +248,7 @@ void ScoundrelGame::drink_potion_at(uint32_t room_index) {
 
 	// don't increase it too much...
 	this->_health_points = std::min(this->_health_points + potion.rank, STARTING_HEALTH);
-	this->_room->erase(this->_room->begin() + room_index, this->_room->begin() + room_index + 1);
+	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(potion);
 
 	if (this->get_room()->size() == 1) {
@@ -264,11 +267,14 @@ void ScoundrelGame::run_away() {
 		this->_room->pop_back();
 		this->_deck->push_back(card);
 	}
-	this->_shuffle();
+	_shuffle();
 
 	for (size_t i = 0; i < 4; ++i) {
 		const Card card = this->_deck->back();
 		this->_deck->pop_back();
 		this->_room->push_back(card);
 	}
+
+	// make sure the player can't run away twice in a row...
+	this->_can_run = false;
 }
