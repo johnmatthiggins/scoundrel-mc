@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -80,7 +79,7 @@ ScoundrelGame::~ScoundrelGame() {
 
 uint32_t ScoundrelGame::_random_int(uint32_t limit) {
 	std::uniform_int_distribution<uint32_t> distribution(0, limit);
-	std::mt19937 rng = *this->_mt19937;
+	std::mt19937& rng = *this->_mt19937;
 	uint32_t random_int = (uint32_t)distribution(rng);
 	return random_int;
 }
@@ -132,6 +131,7 @@ void ScoundrelGame::_next_room() {
 		this->_deck->pop_back();
 	}
 	this->_can_run = true;
+	this->_can_heal = true;
 }
 
 int32_t ScoundrelGame::get_health() const {
@@ -207,15 +207,6 @@ bool ScoundrelGame::can_fight_monster_with_weapon_at(uint32_t room_index) const 
 	return can_fight;
 }
 
-bool ScoundrelGame::can_drink_potion_at(uint32_t room_index) const {
-	bool can_drink_potion = false;
-	if (this->_can_heal) {
-		const Card card = this->_room->at(room_index);
-		can_drink_potion = card.suit == CardSuit::HEARTS;
-	}
-	return can_drink_potion;
-}
-
 void ScoundrelGame::fight_monster_barehanded_at(uint32_t room_index) {
 	const Card monster = this->_room->at(room_index);
 	if (monster.suit != CardSuit::SPADES && monster.suit != CardSuit::CLUBS) {
@@ -244,7 +235,7 @@ void ScoundrelGame::fight_with_weapon_at(uint32_t room_index) {
 	const Card monster = this->_room->at(room_index);
 
 	// decrement health and add monster to discard pile...
-	this->_health_points -= std::max(monster.rank - this->_equipped_weapon.value().rank, 0);
+	this->_health_points -= std::max((int32_t)monster.rank - (int32_t)this->_equipped_weapon.value().rank, 0);
 	this->_killed_monsters->push_back(monster);
 	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(monster);
@@ -273,15 +264,20 @@ void ScoundrelGame::equip_weapon_at(uint32_t room_index) {
 }
 
 void ScoundrelGame::drink_potion_at(uint32_t room_index) {
-	if (!this->can_drink_potion_at(room_index)) {
+	if (this->_room->at(room_index).suit != CardSuit::HEARTS) {
 		throw std::invalid_argument("Cannot drink potion card!");
 	}
 	const Card potion = this->_room->at(room_index);
 
 	// don't increase it too much...
-	this->_health_points = std::min(this->_health_points + potion.rank, STARTING_HEALTH);
+	if (this->_can_heal) {
+		this->_health_points = std::min(this->_health_points + potion.rank, STARTING_HEALTH);
+	} else {
+		// don't do anything because we have already used a potion this turn...
+	}
 	this->_room->erase(this->_room->begin() + room_index);
 	this->_discard->push_back(potion);
+	this->_can_heal = false;
 
 	if (this->get_room()->size() == 1) {
 		this->_next_room();

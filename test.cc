@@ -1,5 +1,7 @@
+#include "strategy.h"
 #include "scoundrel.h"
 #include "cppunit.h"
+#include <cstdlib>
 
 class Cppunit_tests: public Cppunit {
     void test_list() {
@@ -10,6 +12,7 @@ class Cppunit_tests: public Cppunit {
         can_kill_monster_with_weapon();
         cannot_kill_monster_with_weapon_when_no_weapon();
         clearing_room_loads_next_room();
+        play_random_game();
     }
 
     void correct_starting_pile_sizes() {
@@ -111,6 +114,24 @@ class Cppunit_tests: public Cppunit {
 
         CHECK(game.get_room()->size(), 4);
         CHECK(game.get_health(), 16);
+    }
+
+    void play_random_game() {
+        const int seed = rand();
+        ScoundrelGame game(seed);
+        FirstCardStrategy strategy(&game);
+
+        int turns = 0;
+        int max_turns = 1000;
+        printf("\n");
+        while (!strategy.play_next_turn()) {
+            turns++;
+            if (turns >= max_turns) {
+                break;
+            }
+        }
+
+        CHECKT(turns < max_turns);
     }
 };
 
