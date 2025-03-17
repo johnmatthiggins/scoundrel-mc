@@ -121,6 +121,10 @@ CardStack* ScoundrelGame::get_room() const {
 	return this->_room.get();
 }
 
+CardStack* ScoundrelGame::get_deck() const {
+	return this->_deck.get();
+}
+
 CardStack* ScoundrelGame::get_discard() const {
 	return this->_discard.get();
 }

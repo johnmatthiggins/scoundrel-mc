@@ -60,6 +60,7 @@ public:
 	~ScoundrelGame();
 
 	std::vector<Card>* get_room() const;
+	std::vector<Card>* get_deck() const;
 	std::vector<Card>* get_discard() const;
 	std::vector<Card>* get_killed_monsters() const;
 	Card* get_equipped_weapon() const;

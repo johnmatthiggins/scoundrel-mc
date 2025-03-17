@@ -20,17 +20,17 @@ char _suit_char(CardSuit suit) {
 
 int main(int argc, char* argv[]) {
 	const int seed = rand();
-	ScoundrelGame game(seed);
-	for (int i = 0; i < 40; ++i) {
-		const Card card = game.get_room()->at(i);
+	ScoundrelGame game(44);
+	for (int i = 0; i < STARTING_DECK_SIZE - 4; ++i) {
+		const Card card = game.get_deck()->at(i);
 		printf("%d %c ", card.rank,_suit_char((CardSuit)card.suit));
 	}
 	printf("\n");
 
 	game.run_away();
 
-	for (int i = 0; i < 4; ++i) {
-		const Card card = game.get_room()->at(i);
+	for (int i = 0; i < STARTING_DECK_SIZE - 4; ++i) {
+		const Card card = game.get_deck()->at(i);
 		printf("%d %c ", card.rank, _suit_char((CardSuit)card.suit));
 	}
 	printf("\n");
