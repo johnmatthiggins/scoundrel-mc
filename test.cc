@@ -110,6 +110,7 @@ class Cppunit_tests: public Cppunit {
         game.fight_with_weapon_at(1);
 
         CHECK(game.get_room()->size(), 4);
+        CHECK(game.get_health(), 16);
     }
 };
 
