@@ -1,3 +1,4 @@
+#include <iostream>
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
@@ -9,6 +10,37 @@
 #include <vector>
 
 #include "scoundrel.h"
+
+std::string card_to_string(const Card& card) {
+	char buf[0x10] = {0};
+	char c[4] = {0};
+	switch (card.suit) {
+		case CardSuit::CLUBS:
+			c[0] = 0xE2;
+			c[1] = 0x99;
+			c[2] = 0xA3;
+			break;
+		case CardSuit::SPADES:
+			c[0] = 0xE2;
+			c[1] = 0x99;
+			c[2] = 0xA0;
+			break;
+		case CardSuit::HEARTS:
+			c[0] = 0xE2;
+			c[1] = 0x99;
+			c[2] = 0xA5;
+			break;
+		case CardSuit::DIAMONDS:
+			c[0] = 0xE2;
+			c[1] = 0x99;
+			c[2] = 0xA6;
+			break;
+		default:
+			break;
+	}
+	snprintf(buf, sizeof buf, "%s %d", c, card.rank);
+	return std::string(buf);
+}
 
 ScoundrelGame::ScoundrelGame(uint32_t seed) {
 	this->_mt19937 = std::make_unique<std::mt19937>(std::mt19937(seed));

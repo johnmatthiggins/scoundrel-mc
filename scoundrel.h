@@ -2,6 +2,7 @@
 #define SCOUNDREL_H
 
 #include <cstdint>
+#include <cstdio>
 #include <memory>
 #include <optional>
 #include <random>
@@ -23,6 +24,8 @@ constexpr uint32_t STARTING_DECK_SIZE = 44;
 constexpr int32_t STARTING_HEALTH = 20;
 
 using CardStack = std::vector<Card>;
+
+std::string card_to_string(const Card& card);
 
 // the object that holds the state of the game...
 class ScoundrelGame {
