@@ -119,7 +119,7 @@ class Cppunit_tests: public Cppunit {
     void play_random_game() {
         const int seed = rand();
         ScoundrelGame game(seed);
-        FirstCardStrategy strategy(&game);
+        FirstCardStrategy strategy(&game, false);
 
         int turns = 0;
         int max_turns = 1000;
