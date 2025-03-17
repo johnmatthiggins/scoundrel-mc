@@ -53,29 +53,12 @@ uint32_t ScoundrelGame::_random_int(uint32_t limit) {
 }
 
 void ScoundrelGame::_shuffle() {
-	CardStack tmp_deck(this->_deck->size());
-	for (const Card card : *this->_deck) {
-		tmp_deck.push_back(card);
-	}
-	this->_deck->clear();
-
-	// just keep popping them off until it's empty...
-	while (_deck->size() < STARTING_DECK_SIZE) {
-		// This probably has a bias because of the modulo operator making some
-		// numbers more common than others because the possible values in an uint32_t
-		// is not going to be evenly divided by the number of remaining cards.
-		const size_t next_index = this->_random_int(tmp_deck.size() - 1);
-
-		// pop it off the stack
-		const Card next_card = tmp_deck.at(next_index);
-		tmp_deck.erase(tmp_deck.begin() + next_index);
-
-		this->_deck->push_back(next_card);
-	}
+	std::shuffle(this->_deck->begin(), this->_deck->end(), *this->_mt19937);
 }
 
 CardStack ScoundrelGame::_starting_deck() const  {
-	std::vector<Card> _cards(STARTING_DECK_SIZE);
+	std::vector<Card> _cards;
+	_cards.reserve(STARTING_DECK_SIZE);
 
 	// load monsters...
 	for (uint32_t i = 2; i <= 14; ++i) {
@@ -92,7 +75,7 @@ CardStack ScoundrelGame::_starting_deck() const  {
 	}
 
 	// load health potions and weapons...
-	for (uint32_t i = 2; i < 10; ++i) {
+	for (uint32_t i = 2; i <= 10; ++i) {
 		const Card next_diamond = {
 			.suit = CardSuit::DIAMONDS,
 			.rank = i,
