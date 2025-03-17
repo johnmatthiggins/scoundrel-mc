@@ -19,7 +19,6 @@ int play_game() {
 	return turns;
 }
 
-
 int main(int argc, char* argv[]) {
 	const int sample_count = 1000000;
 	std::vector<double> samples;
@@ -34,8 +33,11 @@ int main(int argc, char* argv[]) {
 	double sq_sum = std::inner_product(samples.begin(), samples.end(), samples.begin(), 0.0);
 	double stddev = std::sqrt(sq_sum / samples.size() - (mean * mean));
 
+	printf("-------------------------------------\n");
+	printf("STRATEGY(ALWAYS PICK FIRST CARD):\n");
 	printf("STDDEV = %f\n", stddev);
 	printf("MEAN = %f\n", mean);
+	printf("-------------------------------------\n");
 
 	return 0;
 }
