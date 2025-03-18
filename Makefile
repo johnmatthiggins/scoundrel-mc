@@ -11,3 +11,6 @@ statistics:
 	g++ -std=c++17 scoundrel.cc stats.cc strategy.cc -o stats
 	./stats
 	test -f stats && rm stats
+
+format:
+	clang-format -i *.cc *.h
