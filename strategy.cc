@@ -100,6 +100,12 @@ bool RandomStrategy::play_next_turn() {
       actions.push_back(new RandomStrategy::EquipWeapon(i));
     }
   }
+  if (this->game->can_run_away()) {
+    actions.push_back(new RandomStrategy::RunAway());
+    actions.push_back(new RandomStrategy::RunAway());
+    actions.push_back(new RandomStrategy::RunAway());
+    actions.push_back(new RandomStrategy::RunAway());
+  }
 
   std::uniform_int_distribution<uint32_t> dist(0, actions.size() - 1);
   uint32_t choice = dist(*this->_rng);
@@ -156,3 +162,8 @@ RandomStrategy::EquipWeapon::~EquipWeapon() {}
 void RandomStrategy::EquipWeapon::act(ScoundrelGame *game) {
   game->equip_weapon_at(this->_target);
 }
+
+void RandomStrategy::RunAway::act(ScoundrelGame* game) {
+  game->run_away();
+}
+

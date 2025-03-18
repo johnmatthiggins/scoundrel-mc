@@ -2,13 +2,18 @@
 #include <memory>
 #include <random>
 
+/**
+ * Strategy interface...
+ */
 class Strategy {
 public:
   virtual bool play_next_turn() = 0;
   virtual void load_game(ScoundrelGame *game) = 0;
 };
 
-// just pick the first card and interact with it...
+/**
+ * Always picks the card furthest to the left...
+ */
 class FirstCardStrategy : public Strategy {
   ScoundrelGame *game;
   bool show_output;
@@ -76,4 +81,24 @@ public:
     ~EquipWeapon();
     virtual void act(ScoundrelGame *game) override;
   };
+
+  class RunAway final : public GameAction {
+  public:
+    RunAway() {};
+    ~RunAway() {};
+    virtual void act(ScoundrelGame *game) override;
+  };
 };
+
+/**
+ * Greedy algorithm that checks all ordering of cards in current room and takes
+ * the ordering with the best score. (Highest health?) (Best ordering cannot lead to death)
+ * TODO: Figure out scoring function...
+ */
+
+/**
+ * Algorithm that fights every monster barehanded if they can survive it.
+ * - Start with the highest monster. If the player can't survive a fight
+ *   they will opt for the next lowest monster. If no monsters exist, perform
+ *   a random action.
+ */
