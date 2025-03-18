@@ -1,15 +1,19 @@
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 
 #include "strategy.h"
 #include "scoundrel.h"
 
-FirstCardStrategy::FirstCardStrategy(ScoundrelGame* game, bool show_output) {
+FirstCardStrategy::FirstCardStrategy(bool show_output) {
 	if (game == nullptr) {
 		throw std::invalid_argument("You can't pass a null pointer game to a strategy!");
 	}
-	this->game = game;
 	this->show_output = show_output;
+}
+
+void FirstCardStrategy::load_game(ScoundrelGame* game) {
+	this->game = game;
 }
 
 FirstCardStrategy::~FirstCardStrategy() {
@@ -54,4 +58,89 @@ bool FirstCardStrategy::play_next_turn() {
 
 	const bool game_decided = this->game->has_died() || this->game->has_exited_dungeon();
 	return game_decided;
+}
+
+RandomStrategy::RandomStrategy() {
+}
+
+RandomStrategy::~RandomStrategy() {
+}
+
+bool RandomStrategy::play_next_turn() {
+	const std::vector<Card>* room = this->game->get_room();
+	std::vector<RandomStrategy::GameAction*> actions;
+
+	// compile list of possible actions...
+	for (uint32_t i = 0; i < room->size(); ++i) {
+		const Card& card = room->at(i);
+		if (card.suit == CardSuit::CLUBS || card.suit == CardSuit::SPADES) {
+			RandomStrategy::GameAction* action1 = new RandomStrategy::FightMonsterBareHanded(i);
+			actions.push_back(action1);
+			if (this->game->can_fight_monster_with_weapon_at(i)) {
+				RandomStrategy::GameAction* action2 = new RandomStrategy::FightMonsterWithWeapon(i);
+				actions.push_back(action2);
+			}
+		} else if (card.suit == CardSuit::HEARTS) {
+			actions.push_back(new RandomStrategy::DrinkPotion(i));
+		} else {
+			actions.push_back(new RandomStrategy::EquipWeapon(i));
+		}
+	}
+
+	uint32_t choice = rand() % actions.size();
+	actions.at(choice)->act(this->game);
+
+	for (int i = 0; i < actions.size(); ++i) {
+		delete actions.at(i);
+	}
+
+	return this->game->has_died() || this->game->has_exited_dungeon();
+}
+
+void RandomStrategy::load_game(ScoundrelGame* game) {
+	this->game = game;
+}
+
+RandomStrategy::DrinkPotion::DrinkPotion(uint32_t target) {
+	this->_target = target;
+}
+
+RandomStrategy::DrinkPotion::~DrinkPotion() {
+}
+
+void RandomStrategy::DrinkPotion::act(ScoundrelGame* game) {
+	game->drink_potion_at(this->_target);
+}
+
+RandomStrategy::FightMonsterBareHanded::FightMonsterBareHanded(uint32_t target) {
+	this->_target = target;
+}
+
+RandomStrategy::FightMonsterBareHanded::~FightMonsterBareHanded() {
+}
+
+void RandomStrategy::FightMonsterBareHanded::act(ScoundrelGame* game) {
+	game->fight_monster_barehanded_at(this->_target);
+}
+
+RandomStrategy::FightMonsterWithWeapon::FightMonsterWithWeapon(uint32_t target) {
+	this->_target = target;
+}
+
+RandomStrategy::FightMonsterWithWeapon::~FightMonsterWithWeapon() {
+}
+
+void RandomStrategy::FightMonsterWithWeapon::act(ScoundrelGame* game) {
+	game->fight_with_weapon_at(this->_target);
+}
+
+RandomStrategy::EquipWeapon::EquipWeapon(uint32_t target) {
+	this->_target = target;
+}
+
+RandomStrategy::EquipWeapon::~EquipWeapon() {
+}
+
+void RandomStrategy::EquipWeapon::act(ScoundrelGame* game) {
+	game->equip_weapon_at(this->_target);
 }
