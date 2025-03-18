@@ -72,7 +72,8 @@ bool FirstCardStrategy::play_next_turn() {
 }
 
 RandomStrategy::RandomStrategy() {
-  this->_rng = std::make_unique<std::mt19937>();
+  std::time_t now = std::time(0);
+  this->_rng = std::make_unique<std::mt19937>(now);
 }
 
 RandomStrategy::~RandomStrategy() {}
