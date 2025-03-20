@@ -230,7 +230,7 @@ void ScoundrelGame::fight_with_weapon_at(uint32_t room_index) {
 void ScoundrelGame::equip_weapon_at(uint32_t room_index) {
   const Card weapon = this->_room->at(room_index);
   if (weapon.suit != CardSuit::DIAMONDS) {
-    throw new std::invalid_argument(
+    throw std::invalid_argument(
         "Cannot equip weapon card because it is not a weapon!");
   }
   // reset killed monsters because we have a new weapon...

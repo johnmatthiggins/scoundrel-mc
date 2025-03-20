@@ -84,15 +84,16 @@ public:
 
   class RunAway final : public GameAction {
   public:
-    RunAway() {};
-    ~RunAway() {};
+    RunAway(){};
+    ~RunAway(){};
     virtual void act(ScoundrelGame *game) override;
   };
 };
 
 /**
  * Greedy algorithm that checks all ordering of cards in current room and takes
- * the ordering with the best score. (Highest health?) (Best ordering cannot lead to death)
+ * the ordering with the best score. (Highest health?) (Best ordering cannot
+ * lead to death)
  * TODO: Figure out scoring function...
  */
 

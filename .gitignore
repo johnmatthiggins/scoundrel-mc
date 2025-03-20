@@ -1,6 +1,7 @@
 main
 mc
 a.out
+stats
 
 cppunit.h
 runtest

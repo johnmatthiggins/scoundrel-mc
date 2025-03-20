@@ -1,6 +1,9 @@
+#include <algorithm>
+#include <ctime>
+#include <numeric>
+
 #include "scoundrel.h"
 #include "strategy.h"
-#include <numeric>
 
 int play_game_with_strategy(Strategy &strategy) {
   int turns = 0;
@@ -22,7 +25,7 @@ void evaluate_strategy(Strategy &strategy, std::string name) {
   samples.reserve(sample_count);
 
   for (int i = 0; i < sample_count; ++i) {
-    std::time_t seed = std::time(0);
+    time_t seed = time(0);
     ScoundrelGame game(seed);
     strategy.load_game(&game);
     samples.push_back((double)play_game_with_strategy(strategy));

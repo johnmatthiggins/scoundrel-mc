@@ -1,3 +1,4 @@
+#include <ctime>
 #include <iostream>
 #include <memory>
 #include <random>
@@ -22,7 +23,7 @@ FirstCardStrategy::~FirstCardStrategy() {
 
 bool FirstCardStrategy::play_next_turn() {
   if (game->has_died() || game->has_exited_dungeon()) {
-    throw new std::invalid_argument(
+    throw std::invalid_argument(
         "You are trying to play a game that has already been decided!");
   }
   const Card first_card = game->get_room()->at(0);
@@ -55,14 +56,16 @@ bool FirstCardStrategy::play_next_turn() {
   } else if (first_card.suit == CardSuit::DIAMONDS) {
     game->equip_weapon_at(0);
     if (this->show_output) {
-      std::cout << "[" << game->get_health() << "]" << " Equipped weapon... "
-                << card_to_string(first_card) << std::endl;
+      std::cout << "[" << game->get_health() << "]"
+                << " Equipped weapon... " << card_to_string(first_card)
+                << std::endl;
     }
   } else {
     game->drink_potion_at(0);
     if (this->show_output) {
-      std::cout << "[" << game->get_health() << "]" << " Drank potion... "
-                << card_to_string(first_card) << std::endl;
+      std::cout << "[" << game->get_health() << "]"
+                << " Drank potion... " << card_to_string(first_card)
+                << std::endl;
     }
   }
 
@@ -72,7 +75,7 @@ bool FirstCardStrategy::play_next_turn() {
 }
 
 RandomStrategy::RandomStrategy() {
-  std::time_t now = std::time(0);
+  time_t now = time(0);
   this->_rng = std::make_unique<std::mt19937>(now);
 }
 
@@ -163,7 +166,4 @@ void RandomStrategy::EquipWeapon::act(ScoundrelGame *game) {
   game->equip_weapon_at(this->_target);
 }
 
-void RandomStrategy::RunAway::act(ScoundrelGame* game) {
-  game->run_away();
-}
-
+void RandomStrategy::RunAway::act(ScoundrelGame *game) { game->run_away(); }
