@@ -6,6 +6,8 @@
 class LFSR {
   uint64_t _state;
 
+  int _next_bit();
+
 public:
   LFSR(uint32_t seed);
   ~LFSR(){};
